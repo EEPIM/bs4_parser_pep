@@ -8,7 +8,13 @@ from bs4 import BeautifulSoup
 from tqdm import tqdm
 
 from configs import configure_argument_parser, configure_logging
-from constants import BASE_DIR, MAIN_DOC_URL, PEP_URL, FACT_STATUS
+from constants import (
+    BASE_DIR,
+    MAIN_DOC_URL,
+    PEP_URL,
+    FACT_STATUS,
+    EXPECTED_STATUS
+)
 from outputs import control_output
 from utils import get_response, find_tag
 
@@ -115,20 +121,23 @@ def pep(session):
 
         for tag_tr in all_tr:
             abbr = tag_tr.find('abbr')
-            # print(abbr)
             preview_status = abbr.text[1:]
-            # print(preview_status)
-
             tag_a = tag_tr.find('a', class_='pep reference internal')
             href = tag_a['href']
             version_link = urljoin(PEP_URL, href)
-            # print(version_link, preview_status)
-
             response = session.get(version_link)
             response.encoding = 'utf-8'
             soup = BeautifulSoup(response.text, 'lxml')
             status = soup.find(
                 'abbr',).text[0]
+            if (preview_status is not None) and (status != preview_status):
+                logging.info(
+                    f'Несовпадающие статусы:'
+                    f'{version_link}'
+                    f'Статус в карточке: {EXPECTED_STATUS[status]}'
+                    f'Ожидаемые статусы: {EXPECTED_STATUS[preview_status]}'
+                )
+
             FACT_STATUS[status] += 1
 
     results = [('Статус', 'Количество')]
