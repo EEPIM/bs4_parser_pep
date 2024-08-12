@@ -5,16 +5,18 @@ import logging
 
 from prettytable import PrettyTable
 
-from constants import BASE_DIR, DATETIME_FORMAT
+from constants import (
+    BASE_DIR, DATETIME_FORMAT, MODE_FILE, MODE_PRETTY, RESULTS_DIR
+)
 
 
 def control_output(results, cli_args):
     """Выбор вывода данных."""
     output = cli_args.output
-    if output == 'pretty':
+    if output == MODE_PRETTY:
         # Вывод данных в PrettyTable.
         pretty_output(results, cli_args)
-    elif output == 'file':
+    elif output == MODE_FILE:
         file_output(results, cli_args)
     else:
         default_output(results)
@@ -30,15 +32,15 @@ def pretty_output(results, cli_args):
     """Табличный вывод в терминал."""
     table = PrettyTable()
 
-    if cli_args.mode == 'peps-versions':
-        table.field_names = (
-            'Статус',
-            'Количество',
-        )
+    if cli_args.mode == 'pep':
+        table.field_names = results[0][0], results[0][1]
         total = 0
-        for status in results:
-            table.add_row((status, results[status]))
-            total += int(results[status])
+        table.add_rows(results[1:])
+
+        for status in results[1:]:
+            # print(status)
+            _, count = status
+            total += int(count)
 
         table.add_row(('Total', total))
 
@@ -52,7 +54,7 @@ def pretty_output(results, cli_args):
 
 def file_output(results, cli_args):
     """Вывод в файл."""
-    results_dir = BASE_DIR / 'results'
+    results_dir = BASE_DIR / RESULTS_DIR
     results_dir.mkdir(exist_ok=True)
     parser_mode = cli_args.mode
     now = dt.datetime.now()

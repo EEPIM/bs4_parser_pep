@@ -1,10 +1,19 @@
 """Константы."""
 from pathlib import Path
 
+
+BASE_DIR = Path(__file__).parent
 MAIN_DOC_URL = 'https://docs.python.org/3/'
 PEP_URL = 'https://peps.python.org/'
-BASE_DIR = Path(__file__).parent
+LOG_DIR = BASE_DIR / 'logs'
+LOG_FILE = LOG_DIR / 'parser.log'
+RESULTS_DIR = 'results'
+DOWNLOADS_DIR = 'downloads'
+LOG_FORMAT = '"%(asctime)s - [%(levelname)s] - %(message)s"'
+DT_FORMAT = '%d.%m.%Y %H:%M:%S'
 DATETIME_FORMAT = '%Y-%m-%d_%H-%M-%S'
+MODE_PRETTY = 'pretty'
+MODE_FILE = 'file'
 FACT_STATUS = {
     'A': 0,
     'D': 0,
