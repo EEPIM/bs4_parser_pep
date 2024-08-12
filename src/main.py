@@ -134,7 +134,9 @@ def pep(session):
                     f'Ожидаемые статусы: {EXPECTED_STATUS[preview_status]} '
                 )
 
-            FACT_STATUS[preview_status] = FACT_STATUS.get(preview_status, 0) + 1
+            FACT_STATUS[preview_status] = FACT_STATUS.get(
+                preview_status, 0
+            ) + 1
     logging.info('\n'.join(different_status))
     results = [('Статус', 'Количество')]
     results.extend(FACT_STATUS.items())
