@@ -7,6 +7,7 @@ MAIN_DOC_URL = 'https://docs.python.org/3/'
 PEP_URL = 'https://peps.python.org/'
 LOG_DIR = BASE_DIR / 'logs'
 LOG_FILE = LOG_DIR / 'parser.log'
+LOGGING_INFO_LIST = []
 RESULTS_DIR = 'results'
 DOWNLOADS_DIR = 'downloads'
 LOG_FORMAT = '"%(asctime)s - [%(levelname)s] - %(message)s"'

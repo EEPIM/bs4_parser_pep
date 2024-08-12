@@ -13,10 +13,11 @@ from constants import (
     DOWNLOADS_DIR,
     EXPECTED_STATUS,
     FACT_STATUS,
+    LOGGING_INFO_LIST,
     MAIN_DOC_URL,
     PEP_URL
 )
-from exceptions import DoesNotFindTagException
+from exceptions import DoesNotFindTagException, EmptyResponseException
 from outputs import control_output
 from utils import find_tag, response_soup
 
@@ -32,13 +33,13 @@ def whats_new(session):
         attrs={'class': 'toctree-l1'}
     )
     results = [('Ссылка на статью', 'Заголовок', 'Редактор, автор')]
-    logging_list = []
     for section in tqdm(sections_by_python):
         version_a_tag = find_tag(section, 'a')
         version_link = urljoin(whats_new_url, version_a_tag['href'])
-        soup = response_soup(session, version_link, False)
-        if soup is False:
-            logging_list.append(f'Страница {version_link} недоступна.')
+        try:
+            soup = response_soup(session, version_link)
+        except EmptyResponseException:
+            LOGGING_INFO_LIST.append(f'Страница {version_link} недоступна.')
             continue
         h1 = find_tag(soup, 'h1')
         dl = find_tag(soup, 'dl')
@@ -46,8 +47,6 @@ def whats_new(session):
         results.append(
             (version_link, h1.text, dl_text)
         )
-    for log in logging_list:
-        logging.info(log)
     return results
 
 
@@ -120,9 +119,16 @@ def pep(session):
             tag_a = tag_tr.find('a', class_='pep reference internal')
             href = tag_a['href']
             version_link = urljoin(PEP_URL, href)
-            response = session.get(version_link)
-            response.encoding = 'utf-8'
-            soup = BeautifulSoup(response.text, 'lxml')
+            try:
+                soup = response_soup(session, version_link)
+            except EmptyResponseException:
+                LOGGING_INFO_LIST.append(
+                    f'Страница {version_link} недоступна.'
+                )
+                continue
+            # response = session.get(version_link)
+            # response.encoding = 'utf-8'
+            # soup = BeautifulSoup(response.text, 'lxml')
             status = soup.find(
                 'abbr',).text[0]
 
@@ -172,6 +178,8 @@ def main():
     except Exception as error:
         logging.error(error)
     finally:
+        for log in LOGGING_INFO_LIST:
+            logging.info(log)
         logging.info('Парсер завершил работу.')
 
 

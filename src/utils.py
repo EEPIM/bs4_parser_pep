@@ -2,9 +2,8 @@
 import logging
 
 from bs4 import BeautifulSoup
-from requests import RequestException
 
-from exceptions import ParserFindTagException, EmptyResponseException
+from exceptions import ParserFindTagException
 
 
 def get_response(session, url, encoding='utf-8'):
@@ -13,12 +12,8 @@ def get_response(session, url, encoding='utf-8'):
         response = session.get(url)
         response.encoding = encoding
         return response
-    except RequestException:
-        raise RequestException('Страница недоступна')
-        # logging.exception(
-        #     f'Возникла ошибка при загрузке страницы {url}',
-        #     stack_info=True
-        # )
+    except ConnectionError:
+        raise ConnectionError('Страница недоступна')
 
 
 def find_tag(soup, tag, attrs=None):
@@ -31,12 +26,7 @@ def find_tag(soup, tag, attrs=None):
     return searched_tag
 
 
-def response_soup(session, url, flag=None):
+def response_soup(session, url, features='lxml'):
     """Получение кода страницы."""
     response = get_response(session, url)
-    if response is None:
-        raise EmptyResponseException
-    elif flag is False and response is None:
-        return flag
-    else:
-        return BeautifulSoup(response.text, features='lxml')
+    return BeautifulSoup(response.text, features=features)
