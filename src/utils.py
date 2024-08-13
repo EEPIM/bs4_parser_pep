@@ -4,6 +4,7 @@ import logging
 from bs4 import BeautifulSoup
 
 from exceptions import ParserFindTagException
+from requests import RequestException
 
 
 def get_response(session, url, encoding='utf-8'):
@@ -12,8 +13,8 @@ def get_response(session, url, encoding='utf-8'):
         response = session.get(url)
         response.encoding = encoding
         return response
-    except ConnectionError:
-        raise ConnectionError('Страница недоступна')
+    except RequestException:
+        raise RequestException('Страница недоступна')
 
 
 def find_tag(soup, tag, attrs=None):

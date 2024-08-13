@@ -16,7 +16,7 @@ from constants import (
     MAIN_DOC_URL,
     PEP_URL
 )
-from exceptions import DoesNotFindTagException, EmptyResponseException
+from exceptions import DoesNotFindTagException
 from outputs import control_output
 from utils import find_tag, response_soup
 
@@ -37,7 +37,7 @@ def whats_new(session):
         version_link = urljoin(whats_new_url, version_a_tag['href'])
         try:
             soup = response_soup(session, version_link)
-        except EmptyResponseException:
+        except ConnectionError:
             LOGGING_INFO_LIST.append(f'Страница {version_link} недоступна.')
             continue
         h1 = find_tag(soup, 'h1')
@@ -120,14 +120,11 @@ def pep(session):
             version_link = urljoin(PEP_URL, href)
             try:
                 soup = response_soup(session, version_link)
-            except EmptyResponseException:
+            except ConnectionError:
                 LOGGING_INFO_LIST.append(
                     f'Страница {version_link} недоступна.'
                 )
                 continue
-            # response = session.get(version_link)
-            # response.encoding = 'utf-8'
-            # soup = BeautifulSoup(response.text, 'lxml')
             status = soup.find(
                 'abbr',).text[0]
 
